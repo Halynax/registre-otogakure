@@ -543,6 +543,15 @@
         { name: "Examinateur", color: "#c7e8b4" },
         { name: "Professeurs", color: "#235f6d" },
         { name: "Apprenti Professeurs", color: "#d2b5ef" }
+      ],
+      "Seyrio": [
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Maître Médecin", color: "#14b8a6" },
+        { name: "Experts Médecins", color: "#2dd4bf" },
+        { name: "Médecins Confirmés", color: "#22c55e" },
+        { name: "Médecins", color: "#60a5fa" },
+        { name: "Stagiaires", color: "#d2b5ef" }
       ]
     };
 
@@ -596,6 +605,19 @@
         return Number(section.accumule || 0) - Number(section.depenses || 0) - salaires(section);
       }
       return revenuePart(section) - Number(section.depenses || 0) - salaires(section);
+    }
+
+    function normalizeDataGrades() {
+      data.forEach(section => {
+        const grades = sectionGrades[section.name] || [];
+        const defaultGrade = grades[0]?.name || "Non défini";
+        section.members = section.members || [];
+        section.members.forEach(member => {
+          if (!grades.some(g => g.name === member.role)) {
+            member.role = defaultGrade;
+          }
+        });
+      });
     }
 
     function save() {
