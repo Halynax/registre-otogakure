@@ -713,7 +713,9 @@
             <div class="money-row">
               <div class="mini">
                 <label>${section.name === "Seyrio" ? "Budget médical donné par le HC" : "Argent accumulé"}</label>
-                <input type="number" value="${section.accumule}" onchange="updateSection(${index}, 'accumule', this.value)">
+                <input type="number" value="${section.accumule}" 
+${section.name === "Seyrio" ? 'style="color:#4ade80;font-weight:800;"' : ""} 
+onchange="updateSection(${index}, 'accumule', this.value)">
               </div>
 
               ${section.name === "Seyrio" ? "" : `
@@ -727,22 +729,22 @@
               </div>
               <div class="mini">
                 <label>Dépense</label>
-                <input type="number" value="${section.depenses}" onchange="updateSection(${index}, 'depenses', this.value)">
+                <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" onchange="updateSection(${index}, 'depenses', this.value)">
               </div>
               <div class="mini">
                 <label>Prime accordée par le HC (- HC net)</label>
-                <input type="number" value="${section.primeHC || 0}" onchange="updateSection(${index}, 'primeHC', this.value)">
+                <input type="number" value="${section.primeHC || 0}" style="color:#60a5fa;font-weight:800;" onchange="updateSection(${index}, 'primeHC', this.value)">
               </div>`}
 
               ${section.name === "Seyrio" ? `
               <div class="mini">
                 <label>Dépenses section</label>
-                <input type="number" value="${section.depenses}" onchange="updateSection(${index}, 'depenses', this.value)">
+                <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" onchange="updateSection(${index}, 'depenses', this.value)">
               </div>` : ""}
 
               <div class="mini">
                 <label>${section.name === "Seyrio" ? "Budget salaires Seyrio" : "Base à répartir + Prime HC"}</label>
-                <div class="readonly gold">${format(base)}</div>
+                <div class="readonly" style="color:#c4b5fd;font-weight:900;">${format(base)}</div>
               </div>
 
 
