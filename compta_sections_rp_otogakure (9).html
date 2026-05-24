@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registre Économique d'Otogakure</title>
+  <style>
+    :root {
+      --bg: #07050d;
+      --bg-soft: #100b19;
+      --card: rgba(24, 17, 38, 0.82);
+      --card-2: rgba(35, 24, 55, 0.92);
+      --purple: #7c3aed;
+      --purple-soft: #a78bfa;
+      --gold: #f6c453;
+      --gold-soft: #ffe8a3;
+      --text: #f8f4ff;
+      --muted: #bcaee0;
+      --line: rgba(246, 196, 83, 0.25);
+      --green: #4ade80;
+      --red: #fb7185;
+      --blue: #60a5fa;
+      --glass: rgba(255, 255, 255, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, .35), transparent 28%),
+        radial-gradient(circle at top right, rgba(246, 196, 83, .18), transparent 30%),
+        linear-gradient(135deg, #07050d 0%, #11071e 48%, #06040a 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+      opacity: .45;
+    }
+
+    header {
+      position: relative;
+      padding: 38px 24px 28px;
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    }
+
+    .hero {
+      max-width: 1450px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .seal {
+      width: 84px;
+      height: 84px;
+      border: 1px solid rgba(246,196,83,.5);
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, rgba(246,196,83,.32), transparent 45%),
+        linear-gradient(145deg, rgba(124,58,237,.45), rgba(255,255,255,.04));
+      color: var(--gold-soft);
+      font-size: 42px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.4), 0 0 30px rgba(124,58,237,.25);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 62px);
+      letter-spacing: -1.5px;
+      line-height: .95;
+    }
+
+    .accent {
+      color: var(--gold);
+      text-shadow: 0 0 24px rgba(246,196,83,.22);
+    }
+
+    header p {
+      margin: 12px 0 0;
+      max-width: 950px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    main {
+      position: relative;
+      max-width: 1450px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    .banner {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,.045);
+      backdrop-filter: blur(14px);
+      color: var(--muted);
+    }
+
+    .banner strong { color: var(--gold); }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, var(--card), var(--card-2));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 18px;
+      min-height: 112px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -60px auto;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle, rgba(246,196,83,.18), transparent 65%);
+      pointer-events: none;
+    }
+
+    .card h3 {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .9px;
+    }
+
+    .card .value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 10px;
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.045);
+      backdrop-filter: blur(14px);
+    }
+
+    .tab {
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.055);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: .18s ease;
+    }
+
+    .tab:hover {
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--purple), #4c1d95);
+      color: white;
+      border-color: rgba(246,196,83,.45);
+      box-shadow: 0 12px 28px rgba(124,58,237,.35);
+    }
+
+    .section {
+      overflow: hidden;
+      background: linear-gradient(145deg, rgba(22, 15, 35, .88), rgba(13, 9, 22, .94));
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 28px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.42);
+    }
+
+    .section-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,.25), transparent 35%),
+        linear-gradient(90deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.5px;
+    }
+
+    .badge {
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(246,196,83,.1);
+      color: var(--gold-soft);
+      font-size: 14px;
+      border: 1px solid rgba(246,196,83,.28);
+      font-weight: 700;
+    }
+
+    .section-body { padding: 18px; }
+
+    .money-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .mini {
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 14px;
+    }
+
+    .mini label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      font-weight: 800;
+    }
+
+    input, select, button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+    }
+
+    input, select {
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.10);
+      width: 100%;
+      outline: none;
+      font-weight: 700;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
+    }
+
+    select option {
+      background: #12091f;
+      color: var(--text);
+    }
+
+    input:focus, select:focus {
+      border-color: rgba(246,196,83,.6);
+      box-shadow: 0 0 0 4px rgba(246,196,83,.08);
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--purple), #4c1d95);
+      color: white;
+      cursor: pointer;
+      font-weight: 800;
+      transition: .18s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    .readonly {
+      padding: 12px;
+      background: rgba(255,255,255,.075);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      font-weight: 800;
+      min-height: 44px;
+    }
+
+    .positive { color: var(--green) !important; font-weight: 900; }
+    .negative { color: var(--red) !important; font-weight: 900; }
+    .gold { color: var(--gold) !important; font-weight: 900; }
+    .blue { color: var(--blue) !important; font-weight: 900; }
+
+    .member-tools {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr auto;
+      gap: 10px;
+      margin: 18px 0 10px;
+      padding: 12px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .table-wrap {
+      margin-top: 12px;
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--gold-soft);
+      background: rgba(255,255,255,.05);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      font-size: 12px;
+    }
+
+    td input { padding: 9px; text-align: center; }
+
+    .small-btn {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 12px;
+    }
+
+    .delete { background: linear-gradient(135deg, #be123c, #7f1d1d); }
+
+    .grade-picker {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      justify-content: center;
+      min-width: 150px;
+    }
+
+    .grade-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 6px 15px rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.16);
+      white-space: nowrap;
+    }
+
+    .grade-arrow {
+      color: var(--gold);
+      font-size: 14px;
+      line-height: 1;
+      opacity: .9;
+      transition: .18s ease;
+    }
+
+    .grade-picker:hover .grade-arrow {
+      transform: translateY(2px);
+      opacity: 1;
+    }
+
+    .grade-picker select {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .add-select {
+      background: rgba(255,255,255,.06);
+      border-color: rgba(246,196,83,.25);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 12px;
+      line-height: 1.55;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+      border-left: 4px solid var(--gold);
+      padding: 12px 14px;
+      border-radius: 16px;
+    }
+
+    .progress {
+      height: 10px;
+      width: 100%;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple), var(--gold));
+      border-radius: 999px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      letter-spacing: 1px;
+      font-weight: 700;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,.045);
+    }
+
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; text-align: center; }
+      .seal { margin: auto; }
+      .member-tools { grid-template-columns: 1fr; }
+      main { padding: 12px; }
+      .banner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div class="seal">♪</div>
+      <div>
+        <h1>Registre <span class="accent">Économique</span><br>d'Otogakure</h1>
+        <p>Comptabilité moderne des sections : 70% pour le Haut Commandement, 30% pour la section, puis répartition automatique des salaires selon les poids en pourcentage.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="banner">
+      <span><strong>Système actif :</strong> répartition équilibrée même au-dessus de 100%.</span>
+      <span>Chaque pourcentage devient un poids de partage.</span>
+    </div>
+
+    <div class="dashboard">
+      <div class="card"><h3>Argent accumulé total</h3><div class="value" id="totalAccumule">0 ryos</div></div>
+      <div class="card"><h3>Haut Commandement 70%</h3><div class="value gold" id="totalHC">0 ryos</div></div>
+      <div class="card"><h3>Revenus sections 30%</h3><div class="value positive" id="totalRevenueSection">0 ryos</div></div>
+      <div class="card"><h3>Total dépenses</h3><div class="value negative" id="totalDepenses">0 ryos</div></div>
+      <div class="card"><h3>Masse salariale répartie</h3><div class="value blue" id="totalSalaires">0 ryos</div></div>
+      <div class="card"><h3>Solde global sections</h3><div class="value" id="soldeGlobal">0 ryos</div></div>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div id="sectionContainer"></div>
+    <div class="footer-note">Registre officiel des finances de section — Otogakure</div>
+  </main>
+
+  <script>
+    const sectionNames = [
+      "Kyobun",
+      "Diplomatie"
+    ];
+
+    let activeSection = localStorage.getItem("activeSectionOto") || sectionNames[0];
+
+    const sectionGrades = {
+      "Diplomatie": [
+        { name: "Gérant", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Responsable", color: "#1858b8" },
+        { name: "Coordinateur", color: "#b80000" },
+        { name: "Diplomate confirmé", color: "#9bc9ef" },
+        { name: "Diplomate", color: "#9dbdcb" },
+        { name: "Aspirant", color: "#d2b5ef" }
+      ],
+      "Kyobun": [
+        { name: "Gérant", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Gérant Professeurs", color: "#1858b8" },
+        { name: "Gérant Recrutement", color: "#6b3fa0" },
+        { name: "Examinateur", color: "#c7e8b4" },
+        { name: "Professeurs", color: "#235f6d" },
+        { name: "Apprenti Professeurs", color: "#d2b5ef" }
+      ],
+      "Toko": [
+        { name: "Directeur", color: "#ff7b2f" },
+        { name: "Sous-directeur", color: "#e89a6a" },
+        { name: "Responsable", color: "#1858b8" },
+        { name: "Artisan confirmé", color: "#9bc9ef" },
+        { name: "Artisan", color: "#9dbdcb" },
+        { name: "Apprenti", color: "#d2b5ef" }
+      ]
+    };
+
+    let savedData = JSON.parse(localStorage.getItem("registreOtoModerneEquilibre")) || [];
+
+    savedData = savedData.filter(section => sectionNames.includes(section.name));
+
+    let data = savedData.length
+      ? savedData
+      : sectionNames.map(name => ({
+      name,
+      accumule: 0,
+      depenses: 0,
+      members: []
+    }));
+
+    const format = n => `${Math.round(Number(n || 0)).toLocaleString("fr-FR")} ryos`;
+    const pct = n => `${Number(n || 0).toLocaleString("fr-FR", { maximumFractionDigits: 2 })}%`;
+
+    const hcPart = section => Number(section.accumule || 0) * 0.70;
+    const revenuePart = section => Number(section.accumule || 0) * 0.30;
+    const baseRepartition = section => Math.max(revenuePart(section) - Number(section.depenses || 0), 0);
+    const totalPoids = section => section.members.reduce((sum, m) => sum + Math.max(Number(m.pourcentage || 0), 0), 0);
+
+    function partReelle(section, member) {
+      const total = totalPoids(section);
+      const poids = Math.max(Number(member.pourcentage || 0), 0);
+      if (total <= 0) return 0;
+      return poids / total;
+    }
+
+    function salaireMember(section, member) {
+      return baseRepartition(section) * partReelle(section, member);
+    }
+
+    function salaires(section) {
+      return section.members.reduce((sum, m) => sum + salaireMember(section, m), 0);
+    }
+
+    function solde(section) {
+      return revenuePart(section) - Number(section.depenses || 0) - salaires(section);
+    }
+
+    function save() {
+      localStorage.setItem("registreOtoModerneEquilibre", JSON.stringify(data));
+      localStorage.setItem("activeSectionOto", activeSection);
+      
+    }
+
+    function renderTabs() {
+      document.getElementById("tabs").innerHTML = data.map(section => `
+        <button class="tab ${section.name === activeSection ? "active" : ""}" onclick="setActiveSection('${section.name}')">${section.name}</button>
+      `).join("");
+    }
+
+    function setActiveSection(name) {
+      activeSection = name;
+      render();
+    }
+
+    function render() {
+      renderTabs();
+      const section = data.find(s => s.name === activeSection) || data[0];
+      const index = data.indexOf(section);
+      const sectionSolde = solde(section);
+      const poidsTotal = totalPoids(section);
+      const base = baseRepartition(section);
+
+      document.getElementById("sectionContainer").innerHTML = `
+        <div class="section">
+          <div class="section-header">
+            <h2>${section.name}</h2>
+            <span class="badge">Solde section : <span class="${sectionSolde >= 0 ? "positive" : "negative"}">${format(sectionSolde)}</span></span>
+          </div>
+
+          <div class="section-body">
+            <div class="money-row">
+              <div class="mini">
+                <label>Argent accumulé</label>
+                <input type="number" value="${section.accumule}" onchange="updateSection(${index}, 'accumule', this.value)">
+              </div>
+              <div class="mini">
+                <label>70% Haut Commandement</label>
+                <div class="readonly gold">${format(hcPart(section))}</div>
+              </div>
+              <div class="mini">
+                <label>30% Revenu section</label>
+                <div class="readonly positive">${format(revenuePart(section))}</div>
+              </div>
+              <div class="mini">
+                <label>Dépenses section</label>
+                <input type="number" value="${section.depenses}" onchange="updateSection(${index}, 'depenses', this.value)">
+              </div>
+              <div class="mini">
+                <label>Base à répartir</label>
+                <div class="readonly gold">${format(base)}</div>
+              </div>
+              <div class="mini">
+                <label>Total des poids indiqués</label>
+                <div class="readonly blue">${pct(poidsTotal)}</div>
+              </div>
+              <div class="mini">
+                <label>Masse salariale</label>
+                <div class="readonly blue">${format(salaires(section))}</div>
+              </div>
+              <div class="mini">
+                <label>Solde restant</label>
+                <div class="readonly ${sectionSolde >= 0 ? "positive" : "negative"}">${format(sectionSolde)}</div>
+              </div>
+            </div>
+
+            <div class="note">
+              Les pourcentages fonctionnent comme des poids. Si tu mets 150%, 80% et 20%, le site équilibre automatiquement : chacun reçoit une part proportionnelle sur la base à répartir. Le total peut donc dépasser 100% sans casser le calcul.
+            </div>
+
+            <div class="member-tools">
+              <input id="memberName" placeholder="Nom du membre">
+              <select id="memberRole" class="add-select">
+                ${(sectionGrades[section.name] || []).map(g => `<option value="${g.name}">${g.name}</option>`).join("")}
+              </select>
+              <button onclick="addMember(${index})">Ajouter membre</button>
+            </div>
+
+            
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Rôle</th>
+                    <th>Poids % donné</th>
+                    <th>Part réelle</th>
+                    <th>Salaire automatique</th>
+                    <th>Répartition</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${section.members.map((m, memberIndex) => {
+                    const realPart = partReelle(section, m) * 100;
+                    const paye = salaireMember(section, m);
+                    return `
+                      <tr>
+                        <td><input value="${m.name}" onchange="updateMember(${index}, ${memberIndex}, 'name', this.value)"></td>
+                        <td>
+                          <div class="grade-picker">
+                            <span class="grade-pill" style="background:${(sectionGrades[section.name].find(r => r.name === m.role) || {}).color || '#555'};">
+                              ${m.role}
+                            </span>
+                            <span class="grade-arrow">⌄</span>
+                            <select aria-label="Modifier le grade" onchange="updateMember(${index}, ${memberIndex}, 'role', this.value)">
+                              ${(sectionGrades[section.name] || []).map(g => `<option value="${g.name}" ${m.role === g.name ? "selected" : ""}>${g.name}</option>`).join("")}
+                            </select>
+                          </div>
+                        </td>
+                        <td><input type="number" value="${m.pourcentage || 0}" onchange="updateMember(${index}, ${memberIndex}, 'pourcentage', this.value)"></td>
+                        <td class="gold">${pct(realPart)}</td>
+                        <td class="positive">${format(paye)}</td>
+                        <td><div class="progress"><div style="width:${Math.min(realPart, 100)}%"></div></div></td>
+                        <td><button class="small-btn delete" onclick="deleteMember(${index}, ${memberIndex})">X</button></td>
+                      </tr>
+                    `;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      updateDashboard();
+      save();
+    }
+
+    function updateDashboard() {
+      let totalAccumule = 0, totalHC = 0, totalRevenue = 0, totalDepenses = 0, totalSalaires = 0;
+
+      data.forEach(section => {
+        totalAccumule += Number(section.accumule || 0);
+        totalHC += hcPart(section);
+        totalRevenue += revenuePart(section);
+        totalDepenses += Number(section.depenses || 0);
+        totalSalaires += salaires(section);
+      });
+
+      const global = totalRevenue - totalDepenses - totalSalaires;
+      document.getElementById("totalAccumule").textContent = format(totalAccumule);
+      document.getElementById("totalHC").textContent = format(totalHC);
+      document.getElementById("totalRevenueSection").textContent = format(totalRevenue);
+      document.getElementById("totalDepenses").textContent = format(totalDepenses);
+      document.getElementById("totalSalaires").textContent = format(totalSalaires);
+      document.getElementById("soldeGlobal").textContent = format(global);
+      document.getElementById("soldeGlobal").className = `value ${global >= 0 ? "positive" : "negative"}`;
+    }
+
+    function updateSection(index, key, value) {
+      data[index][key] = Number(value || 0);
+      render();
+    }
+
+    function updateMember(sectionIndex, memberIndex, key, value) {
+      data[sectionIndex].members[memberIndex][key] = key === "pourcentage" ? Math.max(Number(value || 0), 0) : value;
+      render();
+    }
+
+    function addMember(sectionIndex) {
+      const name = document.getElementById("memberName").value.trim();
+      const role = document.getElementById("memberRole").value;
+      if (!name) return alert("Ajoute un nom de membre.");
+      data[sectionIndex].members.push({ name, role: role || (sectionGrades[data[sectionIndex].name]?.[0]?.name || "Non défini"), pourcentage: 0 });
+      render();
+    }
+
+    
+
+    function deleteMember(sectionIndex, memberIndex) {
+      data[sectionIndex].members.splice(memberIndex, 1);
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
