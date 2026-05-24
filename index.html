@@ -508,13 +508,16 @@
     <div class="footer-note">Registre officiel des finances de section — Otogakure</div>
   </main>
 
-  <script>
-    const sectionNames = [
-      "Kyobun",
-      "Diplomatie"
-    ];
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    let activeSection = localStorage.getItem("activeSectionOto") || sectionNames[0];
+  <script>
+    const SUPABASE_URL = "https://rqykrcbiunvicqufbxlg.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_zzDZAqfZYpdhoq6Fbiui1A_9-aUJ0qR";
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const sectionNames = ["Kyobun", "Diplomatie"];
+    let activeSection = sectionNames[0];
+    let isLoading = false;
 
     const sectionGrades = {
       "Diplomatie": [
@@ -534,37 +537,34 @@
         { name: "Examinateur", color: "#c7e8b4" },
         { name: "Professeurs", color: "#235f6d" },
         { name: "Apprenti Professeurs", color: "#d2b5ef" }
-      ],
-      "Toko": [
-        { name: "Directeur", color: "#ff7b2f" },
-        { name: "Sous-directeur", color: "#e89a6a" },
-        { name: "Responsable", color: "#1858b8" },
-        { name: "Artisan confirmé", color: "#9bc9ef" },
-        { name: "Artisan", color: "#9dbdcb" },
-        { name: "Apprenti", color: "#d2b5ef" }
       ]
     };
 
-    let savedData = JSON.parse(localStorage.getItem("registreOtoModerneEquilibre")) || [];
-
-    savedData = savedData.filter(section => sectionNames.includes(section.name));
-
-    let data = savedData.length
-      ? savedData
-      : sectionNames.map(name => ({
-      name,
-      accumule: 0,
-      depenses: 0,
-      members: []
-    }));
+    let data = sectionNames.map(name => ({ name, accumule: 0, depenses: 0, members: [] }));
 
     const format = n => `${Math.round(Number(n || 0)).toLocaleString("fr-FR")} ryos`;
     const pct = n => `${Number(n || 0).toLocaleString("fr-FR", { maximumFractionDigits: 2 })}%`;
-
     const hcPart = section => Number(section.accumule || 0) * 0.70;
     const revenuePart = section => Number(section.accumule || 0) * 0.30;
     const baseRepartition = section => Math.max(revenuePart(section) - Number(section.depenses || 0), 0);
     const totalPoids = section => section.members.reduce((sum, m) => sum + Math.max(Number(m.pourcentage || 0), 0), 0);
+
+    function normalizeSections(sections) {
+      const clean = Array.isArray(sections) ? sections : [];
+      return sectionNames.map(name => {
+        const found = clean.find(s => s.name === name);
+        return {
+          name,
+          accumule: Number(found?.accumule || 0),
+          depenses: Number(found?.depenses || 0),
+          members: Array.isArray(found?.members) ? found.members.map(m => ({
+            name: m.name || "Sans nom",
+            role: m.role || (sectionGrades[name]?.[0]?.name || "Non défini"),
+            pourcentage: Math.max(Number(m.pourcentage || 0), 0)
+          })) : []
+        };
+      });
+    }
 
     function partReelle(section, member) {
       const total = totalPoids(section);
@@ -585,10 +585,39 @@
       return revenuePart(section) - Number(section.depenses || 0) - salaires(section);
     }
 
-    function save() {
-      localStorage.setItem("registreOtoModerneEquilibre", JSON.stringify(data));
-      localStorage.setItem("activeSectionOto", activeSection);
-      
+    async function save() {
+      if (isLoading) return;
+      const { error } = await db
+        .from("registre_rp")
+        .upsert({
+          id: "registre_otogakure",
+          data: { activeSection, sections: data }
+        });
+
+      if (error) {
+        console.error("Erreur sauvegarde Supabase :", error);
+        alert("Erreur de sauvegarde Supabase. Vérifie les droits de la table.");
+      }
+    }
+
+    async function loadData() {
+      isLoading = true;
+
+      const { data: supaData, error } = await db
+        .from("registre_rp")
+        .select("data")
+        .eq("id", "registre_otogakure")
+        .single();
+
+      if (!error && supaData?.data) {
+        activeSection = sectionNames.includes(supaData.data.activeSection)
+          ? supaData.data.activeSection
+          : sectionNames[0];
+        data = normalizeSections(supaData.data.sections);
+      }
+
+      isLoading = false;
+      render();
     }
 
     function renderTabs() {
@@ -600,6 +629,7 @@
     function setActiveSection(name) {
       activeSection = name;
       render();
+      save();
     }
 
     function render() {
@@ -654,7 +684,7 @@
             </div>
 
             <div class="note">
-              Les pourcentages fonctionnent comme des poids. Si tu mets 150%, 80% et 20%, le site équilibre automatiquement : chacun reçoit une part proportionnelle sur la base à répartir. Le total peut donc dépasser 100% sans casser le calcul.
+              Les pourcentages fonctionnent comme des poids. Si tu mets 150%, 80% et 20%, le site équilibre automatiquement : chacun reçoit une part proportionnelle sur la base à répartir.
             </div>
 
             <div class="member-tools">
@@ -664,8 +694,6 @@
               </select>
               <button onclick="addMember(${index})">Ajouter membre</button>
             </div>
-
-            
 
             <div class="table-wrap">
               <table>
@@ -714,7 +742,6 @@
       `;
 
       updateDashboard();
-      save();
     }
 
     function updateDashboard() {
@@ -741,37 +768,36 @@
     function updateSection(index, key, value) {
       data[index][key] = Number(value || 0);
       render();
+      save();
     }
 
     function updateMember(sectionIndex, memberIndex, key, value) {
       data[sectionIndex].members[memberIndex][key] = key === "pourcentage" ? Math.max(Number(value || 0), 0) : value;
       render();
+      save();
     }
 
     function addMember(sectionIndex) {
       const name = document.getElementById("memberName").value.trim();
       const role = document.getElementById("memberRole").value;
       if (!name) return alert("Ajoute un nom de membre.");
-      data[sectionIndex].members.push({ name, role: role || (sectionGrades[data[sectionIndex].name]?.[0]?.name || "Non défini"), pourcentage: 0 });
+      data[sectionIndex].members.push({
+        name,
+        role: role || (sectionGrades[data[sectionIndex].name]?.[0]?.name || "Non défini"),
+        pourcentage: 0
+      });
       render();
+      save();
     }
-
-    
 
     function deleteMember(sectionIndex, memberIndex) {
       data[sectionIndex].members.splice(memberIndex, 1);
       render();
+      save();
     }
 
-    render();
+    loadData();
+    setInterval(loadData, 3000);
   </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const SUPABASE_URL = "https://rqykrcbiunvicqufbxlg.supabase.co";
-const SUPABASE_KEY = "sb_publishable_zzDZAqfZYpdhoq6Fbiui1A_9-aUJ0qR";
-
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
 </body>
 </html>
