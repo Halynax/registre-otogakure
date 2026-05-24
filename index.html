@@ -518,6 +518,8 @@
     const sectionNames = ["Kyobun", "Diplomatie"];
     let activeSection = sectionNames[0];
     let isLoading = false;
+    let isEditing = false;
+    let saveTimer = null;
 
     const sectionGrades = {
       "Diplomatie": [
@@ -585,7 +587,13 @@
       return revenuePart(section) - Number(section.depenses || 0) - salaires(section);
     }
 
-    async function save() {
+    function save() {
+      if (isLoading) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveNow, 600);
+    }
+
+    async function saveNow() {
       if (isLoading) return;
       const { error } = await db
         .from("registre_rp")
@@ -601,6 +609,7 @@
     }
 
     async function loadData() {
+      if (isEditing) return;
       isLoading = true;
 
       const { data: supaData, error } = await db
@@ -796,8 +805,23 @@
       save();
     }
 
+    document.addEventListener("focusin", (event) => {
+      if (event.target.matches("input, select, textarea")) {
+        isEditing = true;
+      }
+    });
+
+    document.addEventListener("focusout", (event) => {
+      if (event.target.matches("input, select, textarea")) {
+        setTimeout(() => {
+          isEditing = false;
+          saveNow();
+        }, 250);
+      }
+    });
+
     loadData();
-    setInterval(loadData, 3000);
+    setInterval(loadData, 10000);
   </script>
 </body>
 </html>
