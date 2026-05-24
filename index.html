@@ -493,7 +493,10 @@
       <div class="card"><h3>Argent accumulé total</h3><div class="value" id="totalAccumule">0 ryos</div></div>
       <div class="card"><h3>Haut Commandement net</h3><div class="value gold" id="totalHC">0 ryos</div></div>
       <div class="card"><h3>Revenus sections 30%</h3><div class="value positive" id="totalRevenueSection">0 ryos</div></div>
-      <div class="card"><h3>Total dépenses</h3><div class="value negative" id="totalDepenses">0 ryos</div></div>
+      
+<div class="card"><h3>Dépenses total des sections</h3><div class="value negative" id="totalDepenses">0 ryos</div></div>
+<div class="card"><h3>Dépenses total du HC</h3><div class="value negative" id="totalDepensesHC">0 ryos</div></div>
+
       
     </div>
 
@@ -824,7 +827,10 @@
       document.getElementById("totalAccumule").textContent = format(totalAccumule);
       document.getElementById("totalHC").textContent = format(totalHC - totalDepensesHC - totalPrimesHC);
       document.getElementById("totalRevenueSection").textContent = format(totalRevenue);
-      document.getElementById("totalDepenses").textContent = format(totalDepenses);
+      
+document.getElementById("totalDepenses").textContent = format(totalDepenses);
+document.getElementById("totalDepensesHC").textContent = format(totalDepensesHC + totalPrimesHC);
+
 
     }
 
