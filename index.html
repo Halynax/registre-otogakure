@@ -135,7 +135,7 @@
       position: relative;
       overflow: hidden;
       background: linear-gradient(145deg, var(--card), var(--card-2));
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(246,196,83,.35);
       border-radius: 24px;
       padding: 18px;
       min-height: 112px;
@@ -250,9 +250,10 @@
 
     .mini {
       background: rgba(255,255,255,.055);
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(246,196,83,.35);
       border-radius: 20px;
       padding: 14px;
+      box-shadow: 0 0 12px rgba(246,196,83,.08);
     }
 
     .mini label {
@@ -494,7 +495,7 @@
     <div class="dashboard">
       <div class="card"><h3>Argent accumulé total</h3><div class="value" id="totalAccumule">0 ryos</div></div>
       <div class="card"><h3>Haut Commandement net</h3><div class="value gold" id="totalHC">0 ryos</div></div>
-      <div class="card"><h3>Bénéfice sections 20%</h3><div class="value positive" id="totalRevenueSection">0 ryos</div></div>
+      <div class="card"><h3>Bénéfice sections</h3><div class="value positive" id="totalRevenueSection">0 ryos</div></div>
       
 <div class="card"><h3>Dépenses total des sections</h3><div class="value negative" id="totalDepenses">0 ryos</div></div>
 <div class="card"><h3>Dépenses total du HC</h3><div class="value negative" id="totalDepensesHC">0 ryos</div></div>
@@ -708,7 +709,7 @@
         <div class="section">
           <div class="section-header">
             <h2>${section.name}</h2>
-            <span class="badge">Solde section : <span class="${sectionSolde >= 0 ? "positive" : "negative"}">${format(sectionSolde)}</span></span>
+            
           </div>
 
           <div class="section-body">
@@ -751,13 +752,10 @@ onchange="updateSection(${index}, 'accumule', this.value)">
 
 
 
-            </div>            </div>
-
-            <div class="note">
-              
             </div>
 
-            <div class="member-tools">
+            <div style="height:2px;background:linear-gradient(90deg, rgba(246,196,83,.15), rgba(246,196,83,.9), rgba(246,196,83,.15));margin:18px 0;border-radius:999px;"></div>
+<div class="member-tools">
               <input id="memberName" placeholder="Nom du membre">
               <select id="memberRole" class="add-select">
                 ${(sectionGrades[section.name] || []).map(g => `<option value="${g.name}">${g.name}</option>`).join("")}
