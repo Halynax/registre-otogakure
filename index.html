@@ -483,24 +483,18 @@
       <div class="seal">♪</div>
       <div>
         <h1>Registre <span class="accent">Économique</span><br>d'Otogakure</h1>
-        <p>Comptabilité moderne des sections : 70% pour le Haut Commandement, 30% pour la section, puis répartition automatique des salaires selon les poids en pourcentage.</p>
+        
       </div>
     </div>
   </header>
 
   <main>
-    <div class="banner">
-      <span><strong>Système actif :</strong> sauvegarde Supabase sans rafraîchissement automatique pendant l’écriture.</span>
-      <span>Chaque pourcentage devient un poids de partage.</span>
-    </div>
-
     <div class="dashboard">
       <div class="card"><h3>Argent accumulé total</h3><div class="value" id="totalAccumule">0 ryos</div></div>
       <div class="card"><h3>Haut Commandement net</h3><div class="value gold" id="totalHC">0 ryos</div></div>
       <div class="card"><h3>Revenus sections 30%</h3><div class="value positive" id="totalRevenueSection">0 ryos</div></div>
       <div class="card"><h3>Total dépenses</h3><div class="value negative" id="totalDepenses">0 ryos</div></div>
-      <div class="card"><h3>Masse salariale répartie</h3><div class="value blue" id="totalSalaires">0 ryos</div></div>
-      <div class="card"><h3>Solde global sections</h3><div class="value" id="soldeGlobal">0 ryos</div></div>
+      
     </div>
 
     <div class="tabs" id="tabs"></div>
@@ -567,7 +561,7 @@
     const revenuePart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * 0.30;
     const baseRepartition = section => isExpenseSection(section)
       ? Math.max(Number(section.accumule || 0), 0)
-      : Math.max(revenuePart(section) - Number(section.depenses || 0), 0);
+      : Math.max(revenuePart(section) + Number(section.primeHC || 0) - Number(section.depenses || 0), 0);
     const seyrioExpense = section => isExpenseSection(section) ? Number(section.depenses || 0) + salaires(section) : 0;
     const totalPoids = section => section.members.reduce((sum, m) => sum + Math.max(Number(m.pourcentage || 0), 0), 0);
 
@@ -607,13 +601,14 @@
       if (isExpenseSection(section)) {
         return Number(section.accumule || 0) - Number(section.depenses || 0) - salaires(section);
       }
-      return revenuePart(section) - Number(section.depenses || 0) - salaires(section);
+      return revenuePart(section) + Number(section.primeHC || 0) - Number(section.depenses || 0) - salaires(section);
     }
 
 
     function sortMembersByGrade() {
       data.forEach(section => {
         const grades = sectionGrades[section.name] || [];
+        section.primeHC = Number(section.primeHC || 0);
         section.members = section.members || [];
         section.members.sort((a, b) => {
           const rankA = grades.findIndex(g => g.name === a.role);
@@ -630,6 +625,7 @@
       data.forEach(section => {
         const grades = sectionGrades[section.name] || [];
         const defaultGrade = grades[0]?.name || "Non défini";
+        section.primeHC = Number(section.primeHC || 0);
         section.members = section.members || [];
         section.members.forEach(member => {
           if (!grades.some(g => g.name === member.role)) {
@@ -716,39 +712,42 @@
                 <label>${section.name === "Seyrio" ? "Budget médical donné par le HC" : "Argent accumulé"}</label>
                 <input type="number" value="${section.accumule}" onchange="updateSection(${index}, 'accumule', this.value)">
               </div>
+
               ${section.name === "Seyrio" ? "" : `
               <div class="mini">
-                <label>70% Haut Commandement</label>
+                <label>Taxe HC</label>
                 <div class="readonly gold">${format(hcPart(section))}</div>
-              </div>`}
-              <div class="mini">
-                <label>${section.name === "Seyrio" ? "Revenu de section" : "30% Revenu section"}</label>
-                <div class="readonly ${section.name === "Seyrio" ? "negative" : "positive"}">${section.name === "Seyrio" ? "0 ryos" : format(revenuePart(section))}</div>
               </div>
               <div class="mini">
-                <label>Dépenses section</label>
+                <label>Bénéfice</label>
+                <div class="readonly positive">${format(revenuePart(section))}</div>
+              </div>
+              <div class="mini">
+                <label>Dépense</label>
                 <input type="number" value="${section.depenses}" onchange="updateSection(${index}, 'depenses', this.value)">
               </div>
               <div class="mini">
-                <label>${section.name === "Seyrio" ? "Budget salaires Seyrio" : "Base à répartir"}</label>
+                <label>Prime accordée par le HC (- HC net)</label>
+                <input type="number" value="${section.primeHC || 0}" onchange="updateSection(${index}, 'primeHC', this.value)">
+              </div>`}
+
+              ${section.name === "Seyrio" ? `
+              <div class="mini">
+                <label>Dépenses section</label>
+                <input type="number" value="${section.depenses}" onchange="updateSection(${index}, 'depenses', this.value)">
+              </div>` : ""}
+
+              <div class="mini">
+                <label>${section.name === "Seyrio" ? "Budget salaires Seyrio" : "Base à répartir + Prime HC"}</label>
                 <div class="readonly gold">${format(base)}</div>
               </div>
-              <div class="mini">
-                <label>Total des poids indiqués</label>
-                <div class="readonly blue">${pct(poidsTotal)}</div>
-              </div>
-              <div class="mini">
-                <label>Masse salariale</label>
-                <div class="readonly blue">${format(salaires(section))}</div>
-              </div>
-              <div class="mini">
-                <label>Solde restant</label>
-                <div class="readonly ${sectionSolde >= 0 ? "positive" : "negative"}">${format(sectionSolde)}</div>
-              </div>
-            </div>
+
+
+
+            </div>            </div>
 
             <div class="note">
-              Les pourcentages fonctionnent comme des poids. Si tu mets 150%, 80% et 20%, le site équilibre automatiquement : chacun reçoit une part proportionnelle sur la base à répartir.
+              
             </div>
 
             <div class="member-tools">
@@ -809,25 +808,24 @@
     }
 
     function updateDashboard() {
-      let totalAccumule = 0, totalHC = 0, totalRevenue = 0, totalDepenses = 0, totalSalaires = 0, totalDepensesHC = 0;
+      let totalAccumule = 0, totalHC = 0, totalRevenue = 0, totalDepenses = 0, totalSalaires = 0, totalDepensesHC = 0, totalPrimesHC = 0;
 
       data.forEach(section => {
         totalAccumule += Number(section.accumule || 0);
         totalHC += hcPart(section);
         totalRevenue += revenuePart(section);
         totalDepenses += Number(section.depenses || 0);
+        totalPrimesHC += Number(section.primeHC || 0);
         totalSalaires += salaires(section);
         if (section.name === "Seyrio") totalDepensesHC += seyrioExpense(section) + Number(section.accumule || 0);
       });
 
-      const global = totalRevenue - totalDepenses - totalSalaires;
+      const global = totalRevenue + totalPrimesHC - totalDepenses - totalSalaires;
       document.getElementById("totalAccumule").textContent = format(totalAccumule);
-      document.getElementById("totalHC").textContent = format(totalHC - totalDepensesHC);
+      document.getElementById("totalHC").textContent = format(totalHC - totalDepensesHC - totalPrimesHC);
       document.getElementById("totalRevenueSection").textContent = format(totalRevenue);
       document.getElementById("totalDepenses").textContent = format(totalDepenses);
-      document.getElementById("totalSalaires").textContent = format(totalSalaires);
-      document.getElementById("soldeGlobal").textContent = format(global);
-      document.getElementById("soldeGlobal").className = `value ${global >= 0 ? "positive" : "negative"}`;
+
     }
 
     function updateSection(index, key, value) {
