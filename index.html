@@ -520,6 +520,9 @@
       "Diplomatie",
       "Seyrio"
     ];
+
+    const resumeTabName = "Résumé finances";
+    let financeHistory = [];
     let activeSection = sectionNames[0];
     let isLoading = false;
     let isEditing = false;
@@ -653,7 +656,7 @@
         .from("registre_rp")
         .upsert({
           id: "registre_otogakure",
-          data: { activeSection, sections: data }
+          data: { activeSection, sections: data, financeHistory }
         });
 
       if (error) {
@@ -677,6 +680,7 @@
           ? supaData.data.activeSection
           : sectionNames[0];
         data = normalizeSections(supaData.data.sections);
+        financeHistory = Array.isArray(supaData.data.financeHistory) ? supaData.data.financeHistory : [];
       }
 
       isLoading = false;
@@ -684,9 +688,15 @@
     }
 
     function renderTabs() {
-      document.getElementById("tabs").innerHTML = data.map(section => `
+      const sectionTabs = data.map(section => `
         <button class="tab ${section.name === activeSection ? "active" : ""}" onclick="setActiveSection('${section.name}')">${section.name}</button>
       `).join("");
+
+      const resumeTab = `
+        <button class="tab ${activeSection === resumeTabName ? "active" : ""}" onclick="setActiveSection('${resumeTabName}')">Résumé finances</button>
+      `;
+
+      document.getElementById("tabs").innerHTML = sectionTabs + resumeTab;
     }
 
     function setActiveSection(name) {
@@ -695,10 +705,130 @@
       save();
     }
 
+
+    function getFinanceTotals() {
+      let totalAccumule = 0, totalHC = 0, totalRevenue = 0, totalDepenses = 0, totalSalaires = 0, totalDepensesHC = 0, totalPrimesHC = 0;
+
+      data.forEach(section => {
+        totalAccumule += Number(section.accumule || 0);
+        totalHC += hcPart(section);
+        totalRevenue += revenuePart(section);
+        totalDepenses += Number(section.depenses || 0);
+        totalPrimesHC += Number(section.primeHC || 0);
+        totalSalaires += salaires(section);
+        if (section.name === "Seyrio") totalDepensesHC += seyrioExpense(section) + Number(section.accumule || 0);
+      });
+
+      return {
+        totalAccumule,
+        totalHCNet: totalHC - totalDepensesHC - totalPrimesHC,
+        totalRevenue,
+        totalDepensesSections: totalDepenses,
+        totalDepensesHC: totalDepensesHC + totalPrimesHC,
+        totalSalaires,
+        totalPrimesHC
+      };
+    }
+
+    function renderFinanceSummary() {
+      const totals = getFinanceTotals();
+
+      document.getElementById("sectionContainer").innerHTML = `
+        <div class="section">
+          <div class="section-header">
+            <h2>Résumé finances</h2>
+            <span class="badge">Semaine / mois RP</span>
+          </div>
+
+          <div class="section-body">
+            <div class="money-row">
+              <div class="mini"><label>Argent accumulé total</label><div class="readonly">${format(totals.totalAccumule)}</div></div>
+              <div class="mini"><label>HC net</label><div class="readonly gold">${format(totals.totalHCNet)}</div></div>
+              <div class="mini"><label>Bénéfice sections</label><div class="readonly positive">${format(totals.totalRevenue)}</div></div>
+              <div class="mini"><label>Dépenses total des sections</label><div class="readonly negative">${format(totals.totalDepensesSections)}</div></div>
+              <div class="mini"><label>Dépenses total du HC</label><div class="readonly negative">${format(totals.totalDepensesHC)}</div></div>
+              <div class="mini"><label>Primes accordées par le HC</label><div class="readonly blue">${format(totals.totalPrimesHC)}</div></div>
+            </div>
+
+            <div style="height:2px;background:linear-gradient(90deg, rgba(246,196,83,.15), rgba(246,196,83,.9), rgba(246,196,83,.15));margin:18px 0;border-radius:999px;"></div>
+
+            <div class="member-tools">
+              <input id="resumeName" placeholder="Nom de l’archive financière">
+              <button onclick="saveFinanceSummary()">Enregistrer</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Période</th>
+                    <th>Argent accumulé</th>
+                    <th>HC net</th>
+                    <th>Bénéfice sections</th>
+                    <th>Dépenses sections</th>
+                    <th>Dépenses HC</th>
+                    <th>Primes Dépense HC</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${financeHistory.length ? financeHistory.map((r, i) => `
+                    <tr>
+                      <td>${r.name}</td>
+                      <td>${format(r.totalAccumule)}</td>
+                      <td class="gold">${format(r.totalHCNet)}</td>
+                      <td class="positive">${format(r.totalRevenue)}</td>
+                      <td class="negative">${format(r.totalDepensesSections)}</td>
+                      <td class="negative">${format(r.totalDepensesHC)}</td>
+                      <td class="blue">${format(r.totalPrimesHC)}</td>
+                      <td><button class="small-btn delete" onclick="deleteFinanceSummary(${i})">X</button></td>
+                    </tr>
+                  `).join("") : `
+                    <tr>
+                      <td colspan="8">Aucun résumé enregistré pour le moment.</td>
+                    </tr>
+                  `}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      updateDashboard();
+    }
+
+    function saveFinanceSummary() {
+      const nameInput = document.getElementById("resumeName");
+      const name = nameInput.value.trim() || `Résumé ${financeHistory.length + 1}`;
+      const totals = getFinanceTotals();
+
+      financeHistory.unshift({
+        name,
+        date: new Date().toISOString(),
+        ...totals
+      });
+
+      render();
+      save();
+    }
+
+    function deleteFinanceSummary(index) {
+      financeHistory.splice(index, 1);
+      render();
+      save();
+    }
+
     function render() {
       normalizeDataGrades();
       sortMembersByGrade();
       renderTabs();
+
+      if (activeSection === resumeTabName) {
+        renderFinanceSummary();
+        return;
+      }
+
       const section = data.find(s => s.name === activeSection) || data[0];
       const index = data.indexOf(section);
       const sectionSolde = solde(section);
@@ -813,27 +943,13 @@ onchange="updateSection(${index}, 'accumule', this.value)">
     }
 
     function updateDashboard() {
-      let totalAccumule = 0, totalHC = 0, totalRevenue = 0, totalDepenses = 0, totalSalaires = 0, totalDepensesHC = 0, totalPrimesHC = 0;
+      const totals = getFinanceTotals();
 
-      data.forEach(section => {
-        totalAccumule += Number(section.accumule || 0);
-        totalHC += hcPart(section);
-        totalRevenue += revenuePart(section);
-        totalDepenses += Number(section.depenses || 0);
-        totalPrimesHC += Number(section.primeHC || 0);
-        totalSalaires += salaires(section);
-        if (section.name === "Seyrio") totalDepensesHC += seyrioExpense(section) + Number(section.accumule || 0);
-      });
-
-      const global = totalRevenue + totalPrimesHC - totalDepenses - totalSalaires;
-      document.getElementById("totalAccumule").textContent = format(totalAccumule);
-      document.getElementById("totalHC").textContent = format(totalHC - totalDepensesHC - totalPrimesHC);
-      document.getElementById("totalRevenueSection").textContent = format(totalRevenue);
-      
-document.getElementById("totalDepenses").textContent = format(totalDepenses);
-document.getElementById("totalDepensesHC").textContent = format(totalDepensesHC + totalPrimesHC);
-
-
+      document.getElementById("totalAccumule").textContent = format(totals.totalAccumule);
+      document.getElementById("totalHC").textContent = format(totals.totalHCNet);
+      document.getElementById("totalRevenueSection").textContent = format(totals.totalRevenue);
+      document.getElementById("totalDepenses").textContent = format(totals.totalDepensesSections);
+      document.getElementById("totalDepensesHC").textContent = format(totals.totalDepensesHC);
     }
 
     function updateSection(index, key, value) {
