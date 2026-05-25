@@ -495,12 +495,18 @@
       margin-left: auto;
     }
 
-    .locked input,
-    .locked select,
+    .locked main input:not(.auth-box input),
+    .locked main select,
     .locked .member-tools button,
     .locked .small-btn {
       pointer-events: none;
       opacity: .55;
+    }
+
+    .auth-box input,
+    .auth-box button {
+      pointer-events: auto !important;
+      opacity: 1 !important;
     }
 
     .locked .readonly {
