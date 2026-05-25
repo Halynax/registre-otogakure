@@ -471,6 +471,53 @@
       background: rgba(255,255,255,.045);
     }
 
+
+    .auth-box {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid rgba(246,196,83,.35);
+      border-radius: 20px;
+      background: rgba(255,255,255,.045);
+      backdrop-filter: blur(14px);
+    }
+
+    .auth-box input {
+      max-width: 260px;
+    }
+
+    .auth-status {
+      color: var(--muted);
+      font-weight: 800;
+      margin-left: auto;
+    }
+
+    .locked input,
+    .locked select,
+    .locked .member-tools button,
+    .locked .small-btn {
+      pointer-events: none;
+      opacity: .55;
+    }
+
+    .locked .readonly {
+      opacity: 1;
+    }
+
+    .lock-note {
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(246,196,83,.35);
+      background: rgba(246,196,83,.08);
+      color: var(--gold-soft);
+      font-weight: 800;
+      text-align: center;
+    }
+
     @media (max-width: 760px) {
       .hero { grid-template-columns: 1fr; text-align: center; }
       .seal { margin: auto; }
@@ -492,6 +539,14 @@
   </header>
 
   <main>
+    <div class="auth-box">
+      <input id="authEmail" type="email" placeholder="Email collaborateur">
+      <input id="authPassword" type="password" placeholder="Mot de passe">
+      <button onclick="loginCollaborator()">Connexion collaborateur</button>
+      <button onclick="logoutCollaborator()">Déconnexion</button>
+      <div class="auth-status" id="authStatus">Lecture seule</div>
+    </div>
+
     <div class="dashboard">
       <div class="card"><h3>Argent accumulé total</h3><div class="value" id="totalAccumule">0 ryos</div></div>
       <div class="card"><h3>Haut Commandement net</h3><div class="value gold" id="totalHC">0 ryos</div></div>
@@ -514,6 +569,9 @@
     const SUPABASE_URL = "https://rqykrcbiunvicqufbxlg.supabase.co";
     const SUPABASE_KEY = "sb_publishable_zzDZAqfZYpdhoq6Fbiui1A_9-aUJ0qR";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+    let canEdit = false;
 
     const sectionNames = [
       "Kyobun",
@@ -645,13 +703,13 @@
     }
 
     function save() {
-      if (isLoading) return;
+      if (isLoading || !canEdit) return;
       clearTimeout(saveTimer);
       saveTimer = setTimeout(saveNow, 600);
     }
 
     async function saveNow() {
-      if (isLoading) return;
+      if (isLoading || !canEdit) return;
       const { error } = await db
         .from("registre_rp")
         .upsert({
@@ -741,6 +799,7 @@
           </div>
 
           <div class="section-body">
+            ${!canEdit ? `<div class="lock-note">Lecture seule — connecte-toi comme collaborateur pour modifier.</div>` : ""}
             <div class="money-row">
               <div class="mini"><label>Argent accumulé total</label><div class="readonly">${format(totals.totalAccumule)}</div></div>
               <div class="mini"><label>HC net</label><div class="readonly gold">${format(totals.totalHCNet)}</div></div>
@@ -799,6 +858,7 @@
     }
 
     function saveFinanceSummary() {
+      if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
       const nameInput = document.getElementById("resumeName");
       const name = nameInput.value.trim() || `Résumé ${financeHistory.length + 1}`;
       const totals = getFinanceTotals();
@@ -814,6 +874,7 @@
     }
 
     function deleteFinanceSummary(index) {
+      if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
       financeHistory.splice(index, 1);
       render();
       save();
@@ -823,6 +884,7 @@
       normalizeDataGrades();
       sortMembersByGrade();
       renderTabs();
+      document.body.classList.toggle("locked", !canEdit);
 
       if (activeSection === resumeTabName) {
         renderFinanceSummary();
@@ -953,18 +1015,21 @@ onchange="updateSection(${index}, 'accumule', this.value)">
     }
 
     function updateSection(index, key, value) {
+      if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
       data[index][key] = Number(value || 0);
       render();
       save();
     }
 
     function updateMember(sectionIndex, memberIndex, key, value) {
+      if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
       data[sectionIndex].members[memberIndex][key] = key === "pourcentage" ? Math.max(Number(value || 0), 0) : value;
       render();
       save();
     }
 
     function addMember(sectionIndex) {
+      if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
       const name = document.getElementById("memberName").value.trim();
       const role = document.getElementById("memberRole").value;
       if (!name) return alert("Ajoute un nom de membre.");
@@ -978,6 +1043,7 @@ onchange="updateSection(${index}, 'accumule', this.value)">
     }
 
     function deleteMember(sectionIndex, memberIndex) {
+      if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
       data[sectionIndex].members.splice(memberIndex, 1);
       render();
       save();
@@ -998,7 +1064,54 @@ onchange="updateSection(${index}, 'accumule', this.value)">
       }
     });
 
-    loadData();
+
+    async function refreshAuthStatus() {
+      const { data: { session } } = await db.auth.getSession();
+      currentUser = session?.user || null;
+      canEdit = !!currentUser;
+
+      const status = document.getElementById("authStatus");
+      if (status) {
+        status.textContent = canEdit ? `Connecté : ${currentUser.email}` : "Lecture seule";
+        status.className = canEdit ? "auth-status positive" : "auth-status";
+      }
+
+      render();
+    }
+
+    async function loginCollaborator() {
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value;
+
+      if (!email || !password) {
+        return alert("Entre l'email et le mot de passe collaborateur.");
+      }
+
+      const { error } = await db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        alert("Connexion refusée : vérifie l'email ou le mot de passe.");
+        return;
+      }
+
+      document.getElementById("authPassword").value = "";
+      await refreshAuthStatus();
+      await loadData();
+    }
+
+    async function logoutCollaborator() {
+      await db.auth.signOut();
+      currentUser = null;
+      canEdit = false;
+      await refreshAuthStatus();
+    }
+
+    db.auth.onAuthStateChange(() => {
+      refreshAuthStatus();
+    });
+
+
+    loadData().then(refreshAuthStatus);
   </script>
 </body>
 </html>
