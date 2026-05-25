@@ -542,6 +542,7 @@
     <div class="auth-box">
       <input id="authEmail" type="email" placeholder="Email collaborateur">
       <input id="authPassword" type="password" placeholder="Mot de passe">
+      <button onclick="signupCollaborator()">Créer un compte collaborateur</button>
       <button onclick="loginCollaborator()">Connexion collaborateur</button>
       <button onclick="logoutCollaborator()">Déconnexion</button>
       <div class="auth-status" id="authStatus">Lecture seule</div>
@@ -1077,6 +1078,24 @@ onchange="updateSection(${index}, 'accumule', this.value)">
       }
 
       render();
+    }
+
+    async function signupCollaborator() {
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value;
+
+      if (!email || !password) {
+        return alert("Entre un email et un mot de passe pour créer le compte collaborateur.");
+      }
+
+      const { error } = await db.auth.signUp({ email, password });
+
+      if (error) {
+        alert("Création refusée : " + error.message);
+        return;
+      }
+
+      alert("Compte créé. Vérifie l'email si Supabase demande une confirmation, puis connecte-toi.");
     }
 
     async function loginCollaborator() {
