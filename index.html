@@ -592,7 +592,14 @@
     const sectionNames = [
       "Kyobun",
       "Diplomatie",
-      "Seyrio"
+      "Seyrio",
+      "Seibo",
+      "Toko",
+      "Kozai",
+      "Forge",
+      "Archéologie",
+      "Kurohane",
+      "Shoga"
     ];
 
     const resumeTabName = "Résumé finances";
@@ -608,7 +615,10 @@
         { name: "Gérance", color: "#ff7b2f" },
         { name: "Co-Gérant", color: "#e89a6a" },
         { name: "Responsable", color: "#1858b8" },
-        { name: "Coordinateur", color: "#b80000" },
+        { name: "Formateur SIO", color: "#7c3aed" },
+        { name: "Interrogateur SIO", color: "#8b5cf6" },
+        { name: "Aspirant SIO", color: "#a78bfa" },
+        { name: "Coordinateur", color: "#2563eb" },
         { name: "Diplomate confirmé", color: "#9bc9ef" },
         { name: "Diplomate", color: "#9dbdcb" },
         { name: "Aspirant", color: "#d2b5ef" }
@@ -632,16 +642,101 @@
         { name: "Médecins Confirmés", color: "#22c55e" },
         { name: "Médecins", color: "#60a5fa" },
         { name: "Stagiaires", color: "#d2b5ef" }
+      ],
+      "Seibo": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Superviseur Bataillon Médicale", color: "#be123c" },
+        { name: "Responsable sous branche", color: "#f59e0b" },
+        { name: "Maitre SCI/Techno", color: "#c084fc" },
+        { name: "Expert SCI/Techno", color: "#f0abfc" },
+        { name: "TechnoScintifique", color: "#7c3aed" },
+        { name: "Technologue", color: "#60a5fa" },
+        { name: "Jeune Pousse", color: "#4ade80" }
+      ],
+      "Toko": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Capitaine", color: "#2563eb" },
+        { name: "Lieutenant", color: "#3b82f6" },
+        { name: "Sergent", color: "#06b6d4" },
+        { name: "Officier", color: "#22c55e" },
+        { name: "Recrue", color: "#d2b5ef" }
+      ],
+      "Kozai": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérant", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Responsable Taxes et Dettes", color: "#dc2626" },
+        { name: "Responsable Récoltes", color: "#16a34a" },
+        { name: "Taxes et Dettes", color: "#f97316" },
+        { name: "Récolteurs", color: "#60a5fa" },
+        { name: "Récolteurs Test", color: "#d2b5ef" }
+      ],
+      "Forge": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Maître", color: "#c084fc" },
+        { name: "Expert", color: "#8b5cf6" },
+        { name: "Adepte", color: "#3b82f6" },
+        { name: "Apprenti", color: "#22c55e" },
+        { name: "Débutant", color: "#84cc16" },
+        { name: "Essai", color: "#d2b5ef" }
+      ],
+      "Archéologie": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Archéologue Confirmé", color: "#c084fc" },
+        { name: "Archéologue", color: "#8b5cf6" },
+        { name: "Archéologue Débutant", color: "#60a5fa" },
+        { name: "Archiviste Chef", color: "#22c55e" },
+        { name: "Archiviste", color: "#d2b5ef" }
+      ],
+      "Kurohane": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Stratège Référent", color: "#581c87" },
+        { name: "Stratège Officier", color: "#6d28d9" },
+        { name: "Stratège Confirmé", color: "#7c3aed" },
+        { name: "Stratège", color: "#8b5cf6" },
+        { name: "Spécialiste Référent", color: "#1d4ed8" },
+        { name: "Spécialiste Officier", color: "#2563eb" },
+        { name: "Spécialiste Confirmé", color: "#3b82f6" },
+        { name: "Spécialiste", color: "#60a5fa" },
+        { name: "Référent Yurei", color: "#065f46" },
+        { name: "Officier Yurei", color: "#059669" },
+        { name: "Yurei Confirmé", color: "#10b981" },
+        { name: "Yurei", color: "#34d399" },
+        { name: "Aspirant Kurohane", color: "#d2b5ef" }
+      ],
+      "Shoga": [
+        { name: "Superviseur", color: "#b80000" },
+        { name: "Gérance", color: "#ff7b2f" },
+        { name: "Co-Gérant", color: "#e89a6a" },
+        { name: "Responsable Evènementiel", color: "#dc2626" },
+        { name: "Organisateur", color: "#f97316" },
+        { name: "Rédacteur en Chef", color: "#8b5cf6" },
+        { name: "Journaliste", color: "#a78bfa" },
+        { name: "Chef de Projet Artistique", color: "#2563eb" },
+        { name: "Artiste", color: "#60a5fa" },
+        { name: "Responsable Empire Shizume", color: "#16a34a" },
+        { name: "Empire Shizume", color: "#4ade80" }
       ]
     };
 
-    let data = sectionNames.map(name => ({ name, accumule: 0, depenses: 0, members: [] }));
+    let data = sectionNames.map(name => ({ name, accumule: 0, depenses: 0, taxPct: 80, members: [] }));
 
     const format = n => `${Math.round(Number(n || 0)).toLocaleString("fr-FR")} ryos`;
     const pct = n => `${Number(n || 0).toLocaleString("fr-FR", { maximumFractionDigits: 2 })}%`;
-    const isExpenseSection = section => section.name === "Seyrio";
-    const hcPart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * 0.80;
-    const revenuePart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * 0.20;
+    const isExpenseSection = section => section.name === "Seyrio" || section.name === "Seibo" || section.name === "Archéologie";
+    const taxRate = section => Math.min(Math.max(Number(section.taxPct ?? 80), 0), 100) / 100;
+    const hcPart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * taxRate(section);
+    const revenuePart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * (1 - taxRate(section));
     const baseRepartition = section => isExpenseSection(section)
       ? Math.max(Number(section.accumule || 0), 0)
       : Math.max(revenuePart(section) + Number(section.primeHC || 0) - Number(section.depenses || 0), 0);
@@ -656,6 +751,7 @@
           name,
           accumule: Number(found?.accumule || 0),
           depenses: Number(found?.depenses || 0),
+          taxPct: Number(found?.taxPct ?? 80),
           members: Array.isArray(found?.members) ? found.members.map(m => ({
             name: m.name || "Sans nom",
             role: m.role || (sectionGrades[name]?.[0]?.name || "Non défini"),
@@ -692,6 +788,7 @@
       data.forEach(section => {
         const grades = sectionGrades[section.name] || [];
         section.primeHC = Number(section.primeHC || 0);
+        section.taxPct = Number(section.taxPct ?? 80);
         section.members = section.members || [];
         section.members.sort((a, b) => {
           const rankA = grades.findIndex(g => g.name === a.role);
@@ -709,6 +806,7 @@
         const grades = sectionGrades[section.name] || [];
         const defaultGrade = grades[0]?.name || "Non défini";
         section.primeHC = Number(section.primeHC || 0);
+        section.taxPct = Number(section.taxPct ?? 80);
         section.members = section.members || [];
         section.members.forEach(member => {
           if (!grades.some(g => g.name === member.role)) {
@@ -790,7 +888,7 @@
         totalDepenses += Number(section.depenses || 0);
         totalPrimesHC += Number(section.primeHC || 0);
         totalSalaires += salaires(section);
-        if (section.name === "Seyrio") totalDepensesHC += seyrioExpense(section) + Number(section.accumule || 0);
+        if (isExpenseSection(section)) totalDepensesHC += seyrioExpense(section) + Number(section.accumule || 0);
       });
 
       return {
@@ -923,13 +1021,17 @@
           <div class="section-body">
             <div class="money-row">
               <div class="mini">
-                <label>${section.name === "Seyrio" ? "Budget médical donné par le HC" : "Argent accumulé"}</label>
+                <label>${section.name === "Seyrio" ? "Budget médical donné par le HC" : section.name === "Seibo" ? "Budget scientifique donné par le HC" : section.name === "Archéologie" ? "Budget archéologique donné par le HC" : "Argent accumulé"}</label>
                 <input type="number" value="${section.accumule}" 
 ${section.name === "Seyrio" ? 'style="color:#4ade80;font-weight:800;"' : ""} 
 onchange="updateSection(${index}, 'accumule', this.value)">
               </div>
 
-              ${section.name === "Seyrio" ? "" : `
+              ${isExpenseSection(section) ? "" : `
+              <div class="mini">
+                <label>% Taxe HC</label>
+                <input type="number" min="0" max="100" value="${section.taxPct ?? 80}" style="color:#f6c453;font-weight:800;" onchange="updateSection(${index}, 'taxPct', this.value)">
+              </div>
               <div class="mini">
                 <label>Taxe HC</label>
                 <div class="readonly gold">${format(hcPart(section))}</div>
@@ -947,14 +1049,14 @@ onchange="updateSection(${index}, 'accumule', this.value)">
                 <input type="number" value="${section.primeHC || 0}" style="color:#60a5fa;font-weight:800;" onchange="updateSection(${index}, 'primeHC', this.value)">
               </div>`}
 
-              ${section.name === "Seyrio" ? `
+              ${isExpenseSection(section) ? `
               <div class="mini">
                 <label>Dépenses section</label>
                 <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" onchange="updateSection(${index}, 'depenses', this.value)">
               </div>` : ""}
 
               <div class="mini">
-                <label>${section.name === "Seyrio" ? "Budget salaires Seyrio" : "Base à répartir + Prime HC"}</label>
+                <label>${isExpenseSection(section) ? "Budget salaires" : "Base à répartir + Prime HC"}</label>
                 <div class="readonly" style="color:#c4b5fd;font-weight:900;">${format(base)}</div>
               </div>
 
@@ -1032,7 +1134,7 @@ onchange="updateSection(${index}, 'accumule', this.value)">
 
     function updateSection(index, key, value) {
       if (!canEdit) return alert("Lecture seule : connexion collaborateur requise.");
-      data[index][key] = Number(value || 0);
+      data[index][key] = key === "taxPct" ? Math.min(Math.max(Number(value || 0), 0), 100) : Number(value || 0);
       render();
       save();
     }
