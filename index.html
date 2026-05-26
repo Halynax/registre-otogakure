@@ -819,7 +819,7 @@
     function save() {
       if (isLoading || !canEdit) return;
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveNow, 600);
+      saveTimer = setTimeout(saveNow, 50);
     }
 
     async function saveNow() {
@@ -834,6 +834,8 @@
       if (error) {
         console.error("Erreur sauvegarde Supabase :", error);
         alert("Erreur de sauvegarde Supabase. Vérifie les droits de la table.");
+      } else {
+        if (!isEditing) loadData();
       }
     }
 
@@ -1024,13 +1026,13 @@
                 <label>${section.name === "Seyrio" ? "Budget médical donné par le HC" : section.name === "Seibo" ? "Budget scientifique donné par le HC" : section.name === "Archéologie" ? "Budget archéologique donné par le HC" : "Argent accumulé"}</label>
                 <input type="number" value="${section.accumule}" 
 ${section.name === "Seyrio" ? 'style="color:#4ade80;font-weight:800;"' : ""} 
-onchange="updateSection(${index}, 'accumule', this.value)">
+oninput="updateSection(${index}, 'accumule', this.value)">
               </div>
 
               ${isExpenseSection(section) ? "" : `
               <div class="mini">
                 <label>% Taxe HC</label>
-                <input type="number" min="0" max="100" value="${section.taxPct ?? 80}" style="color:#f6c453;font-weight:800;" onchange="updateSection(${index}, 'taxPct', this.value)">
+                <input type="number" min="0" max="100" value="${section.taxPct ?? 80}" style="color:#f6c453;font-weight:800;" oninput="updateSection(${index}, 'taxPct', this.value)">
               </div>
               <div class="mini">
                 <label>Taxe HC</label>
@@ -1042,17 +1044,17 @@ onchange="updateSection(${index}, 'accumule', this.value)">
               </div>
               <div class="mini">
                 <label>Dépense</label>
-                <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" onchange="updateSection(${index}, 'depenses', this.value)">
+                <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" oninput="updateSection(${index}, 'depenses', this.value)">
               </div>
               <div class="mini">
                 <label>Prime accordée par le HC (- HC net)</label>
-                <input type="number" value="${section.primeHC || 0}" style="color:#60a5fa;font-weight:800;" onchange="updateSection(${index}, 'primeHC', this.value)">
+                <input type="number" value="${section.primeHC || 0}" style="color:#60a5fa;font-weight:800;" oninput="updateSection(${index}, 'primeHC', this.value)">
               </div>`}
 
               ${isExpenseSection(section) ? `
               <div class="mini">
                 <label>Dépenses section</label>
-                <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" onchange="updateSection(${index}, 'depenses', this.value)">
+                <input type="number" value="${section.depenses}" style="color:#fb7185;font-weight:800;" oninput="updateSection(${index}, 'depenses', this.value)">
               </div>` : ""}
 
               <div class="mini">
@@ -1092,19 +1094,19 @@ onchange="updateSection(${index}, 'accumule', this.value)">
                     const paye = salaireMember(section, m);
                     return `
                       <tr>
-                        <td><input value="${m.name}" onchange="updateMember(${index}, ${memberIndex}, 'name', this.value)"></td>
+                        <td><input value="${m.name}" oninput="updateMember(${index}, ${memberIndex}, 'name', this.value)"></td>
                         <td>
                           <div class="grade-picker">
                             <span class="grade-pill" style="background:${(sectionGrades[section.name].find(r => r.name === m.role) || {}).color || '#555'};">
                               ${m.role}
                             </span>
                             <span class="grade-arrow">⌄</span>
-                            <select aria-label="Modifier le grade" onchange="updateMember(${index}, ${memberIndex}, 'role', this.value)">
+                            <select aria-label="Modifier le grade" oninput="updateMember(${index}, ${memberIndex}, 'role', this.value)">
                               ${(sectionGrades[section.name] || []).map(g => `<option value="${g.name}" ${m.role === g.name ? "selected" : ""}>${g.name}</option>`).join("")}
                             </select>
                           </div>
                         </td>
-                        <td><input type="number" value="${m.pourcentage || 0}" onchange="updateMember(${index}, ${memberIndex}, 'pourcentage', this.value)"></td>
+                        <td><input type="number" value="${m.pourcentage || 0}" oninput="updateMember(${index}, ${memberIndex}, 'pourcentage', this.value)"></td>
                         <td class="gold">${pct(realPart)}</td>
                         <td class="positive">${format(paye)}</td>
                         <td><div class="progress"><div style="width:${Math.min(realPart, 100)}%"></div></div></td>
@@ -1248,6 +1250,10 @@ onchange="updateSection(${index}, 'accumule', this.value)">
 
 
     loadData().then(refreshAuthStatus);
+
+    setInterval(() => {
+      if (!isEditing) loadData();
+    }, 2000);
   </script>
 </body>
 </html>
