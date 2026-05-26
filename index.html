@@ -736,7 +736,12 @@
     const isExpenseSection = section => section.name === "Seyrio" || section.name === "Seibo" || section.name === "Archéologie";
     const taxRate = section => Math.min(Math.max(Number(section.taxPct ?? 80), 0), 100) / 100;
     const hcPart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * taxRate(section);
-    const revenuePart = section => isExpenseSection(section) ? 0 : Number(section.accumule || 0) * (1 - taxRate(section));
+    const revenuePart = section => {
+      if (isExpenseSection(section)) return 0;
+      const pct = Math.min(Math.max(Number(section.taxPct ?? 80), 0), 100);
+      if (pct >= 100) return 0;
+      return Number(section.accumule || 0) * (1 - pct / 100);
+    };
     const baseRepartition = section => isExpenseSection(section)
       ? Math.max(Number(section.accumule || 0), 0)
       : Math.max(revenuePart(section) + Number(section.primeHC || 0) - Number(section.depenses || 0), 0);
