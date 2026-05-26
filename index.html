@@ -824,7 +824,7 @@
     function save() {
       if (isLoading || !canEdit) return;
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveNow, 50);
+      saveTimer = setTimeout(saveNow, 120000);
     }
 
     async function saveNow() {
@@ -839,8 +839,6 @@
       if (error) {
         console.error("Erreur sauvegarde Supabase :", error);
         alert("Erreur de sauvegarde Supabase. Vérifie les droits de la table.");
-      } else {
-        if (!isEditing) loadData();
       }
     }
 
@@ -1258,7 +1256,7 @@ oninput="updateSection(${index}, 'accumule', this.value)">
 
     setInterval(() => {
       if (!isEditing) loadData();
-    }, 2000);
+    }, 180000);
   </script>
 </body>
 </html>
