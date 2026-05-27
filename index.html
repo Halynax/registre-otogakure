@@ -1261,8 +1261,13 @@ onchange="updateSection(${index}, 'accumule', this.value)">
     loadData().then(refreshAuthStatus);
 
     setInterval(() => {
-      if (!isEditing) loadData();
-    }, 180000);
+      const editingField = document.activeElement &&
+        ["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName);
+
+      if (!isEditing && !editingField) {
+        loadData();
+      }
+    }, 300000);
   </script>
 </body>
 </html>
